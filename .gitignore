@@ -3,5 +3,8 @@
 *.csm
 *.CSM
 *.~*
+*.*~
 *.bak
 *.BAK
+**/zig-cache/*
+**/zig-out/*
