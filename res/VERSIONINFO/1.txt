@@ -1,0 +1,29 @@
+1 VERSIONINFO LOADONCALL MOVEABLE DISCARDABLE
+FILEVERSION 1, 0, 0, 2000
+PRODUCTVERSION 1, 0, 0, 2000
+FILEFLAGSMASK VS_FFI_FILEFLAGSMASK
+FILETYPE VFT_APP
+{
+ BLOCK "StringFileInfo"
+ {
+  BLOCK "041004b0"
+  {
+   VALUE "Comments", "Spegni il computer ed esci di casa...\000"
+   VALUE "CompanyName", "Obscured Truckware [Andrea Bonomi, Emanuele Caccialanza, Daniele Gazzarri.]\000"
+   VALUE "FileDescription", "Tabboz Simulator\000"
+   VALUE "FileVersion", "1, 0, 0, 2001\000"
+   VALUE "InternalName", "Tabboz Simulator 32\000"
+   VALUE "LegalCopyright", "Copyright \251 1997-2001 by Obscured Truckware\000"
+   VALUE "OriginalFilename", "Tabboz.exe\000"
+   VALUE "ProductName", "Tabboz Simulator\000"
+   VALUE "ProductVersion", "1, 0, 0, 2001\000"
+  }
+
+ }
+
+ BLOCK "VarFileInfo"
+ {
+  VALUE "Translation", 1040, 1200
+ }
+
+}
