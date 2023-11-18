@@ -28,7 +28,7 @@ pub fn RissaWidget() type {
             c.gtk_label_set_text(@ptrCast(label.ptr), "Insulti un gruppo di metallari che passano per xxx e uno di questi ti spacca le ossa");
 
             const button = try builder.get_widget("button");
-            button.connectWidget("clicked", printHello, null);
+            button.connectWidget("clicked", printHello);
 
             var widgets = WidgetMap.init(allocator);
 

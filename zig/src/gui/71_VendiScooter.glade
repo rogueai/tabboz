@@ -2,7 +2,7 @@
 <!-- Generated with glade 3.22.2 -->
 <interface>
   <requires lib="gtk+" version="3.20"/>
-  <object class="GtkWindow" id="window_71">
+  <object class="GtkApplicationWindow" id="window_71">
     <property name="can_focus">False</property>
     <child type="titlebar">
       <placeholder/>
@@ -30,7 +30,6 @@
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="halign">start</property>
-                    <property name="margin_left">20</property>
                     <property name="margin_top">20</property>
                     <property name="margin_bottom">20</property>
                     <property name="label" translatable="yes">xxx</property>
@@ -46,8 +45,6 @@
                     <property name="height_request">200</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="margin_left">20</property>
-                    <property name="margin_right">20</property>
                     <property name="row_spacing">20</property>
                     <property name="column_spacing">60</property>
                     <child>
@@ -235,8 +232,6 @@
               <object class="GtkBox">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="margin_left">5</property>
-                <property name="margin_right">5</property>
                 <property name="homogeneous">True</property>
                 <child>
                   <object class="GtkImage" id="image2">
@@ -286,12 +281,10 @@
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="valign">center</property>
-                <property name="margin_left">5</property>
-                <property name="margin_right">5</property>
                 <property name="homogeneous">True</property>
                 <property name="baseline_position">top</property>
                 <child>
-                  <object class="GtkButton">
+                  <object class="GtkButton" id="ok">
                     <property name="label">gtk-ok</property>
                     <property name="width_request">120</property>
                     <property name="visible">True</property>

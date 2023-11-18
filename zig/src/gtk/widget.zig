@@ -148,6 +148,21 @@ pub const Widget = struct {
         return if (c.gtk_widget_get_parent(self.ptr)) |w| Self{ .ptr = w } else null;
     }
 
+    pub fn get_root_window(self: Self) ?*c.GtkWindow {
+        return if (c.gtk_widget_get_root_window(self.ptr)) |w| {
+            const res = @as(*c.GtkWindow, @ptrCast(@alignCast(w)));
+            return res;
+        } else null;
+    }
+
+    // pub fn get_parent_window(self: Self) *c.GtkWindow {
+    //     const window = c.gtk_widget_get_parent_window(self.ptr);
+    //     if (window) |w| {
+    //         return w;
+    //     }
+    //     return null;
+    // }
+
     pub fn get_has_tooltip(self: Self) bool {
         return (c.gtk_widget_get_has_tooltip(self.ptr) == 1);
     }
@@ -219,9 +234,14 @@ pub const Widget = struct {
         _ = util.signal_connect(self.ptr, sig.ptr, callback, if (data) |d| d else null);
     }
 
-    pub fn connectWidget(self: Self, sig: []const u8, comptime callback: fn (widget: *Widget) void, data: ?c.gpointer) void {
+    pub fn connectWidget(self: Self, sig: []const u8, comptime callback: fn (widget: *Widget) void) void {
         const fnPtr = @as(c.GCallback, @ptrCast(&callback));
-        _ = util.signal_connect(self.ptr, sig.ptr, fnPtr, if (data) |d| d else null);
+        _ = util.signal_connect(self.ptr, sig.ptr, fnPtr, null);
+    }
+
+    pub fn connectWidgetWithData(self: Self, comptime T: type, sig: []const u8, comptime callback: fn (widget: *Widget, data: *T) void, data: ?*T) void {
+        const fnPtr = @as(c.GCallback, @ptrCast(&callback));
+        _ = util.signal_connect(self.ptr, sig.ptr, fnPtr, if (data) |d| @ptrCast(d) else null);
     }
 
     fn get_g_type(self: Self) u64 {
