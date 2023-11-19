@@ -7,78 +7,81 @@ const RissaWidget = @import("rissaWidget.zig").RissaWidget;
 const c = GTK.c;
 const gtk = GTK.gtk;
 
-const WidgetMap = std.StringHashMap(gtk.Widget);
+// const WidgetMap = std.StringHashMap(gtk.Widget);
 
-pub const VendiScooterWidget = struct {
-    ptr: gtk.Widget = undefined,
-    widgets: WidgetMap = undefined,
-    allocator: std.mem.Allocator = undefined,
-    const Self = @This();
+// pub const VendiScooterWidget = struct {
+//     ptr: gtk.Widget = undefined,
+//     widgets: WidgetMap = undefined,
+//     allocator: std.mem.Allocator = undefined,
+//     const Self = @This();
 
-    pub fn init(allocator: std.mem.Allocator) !VendiScooterWidget {
-        const builder = gtk.Builder.new();
-        try builder.add_from_string(gui.window_71);
-        // Connect signal handlers to the constructed widgets.
-        const window = try builder.get_widget("window_71");
-        _ = window.connect("destroy", @as(c.GCallback, @ptrCast(&c.gtk_main_quit)), null);
+//     pub fn init(allocator: std.mem.Allocator) !VendiScooterWidget {
+//         const builder = gtk.Builder.new();
+//         try builder.add_from_string(gui.window_71);
+//         // Connect signal handlers to the constructed widgets.
+//         //
 
-        {
-            const image = try builder.get_widget("image1");
-            const slice: [:0]const u8 = "./res/1252.BMP";
-            c.gtk_image_set_from_file(@ptrCast(image.ptr), slice);
-        }
-        {
-            const image = try builder.get_widget("image2");
-            const slice: [:0]const u8 = "./res/0001.png";
-            c.gtk_image_set_from_file(@ptrCast(image.ptr), slice);
-        }
+//         const window = try builder.get_widget("window_71");
+//         _ = window.connect("destroy", @as(c.GCallback, @ptrCast(&c.gtk_main_quit)), null);
 
-        var widgets = WidgetMap.init(allocator);
+//         {
+//             const image = try builder.get_widget("image1");
+//             const slice: [:0]const u8 = "./res/1252.BMP";
+//             c.gtk_image_set_from_file(@ptrCast(image.ptr), slice);
+//         }
+//         {
+//             const image = try builder.get_widget("image2");
+//             const slice: [:0]const u8 = "../../res/0001.png";
 
-        // save widgets for later
-        try widgets.put("window", window);
-        try widgets.put("001", try builder.get_widget("001"));
-        try widgets.put("002", try builder.get_widget("002"));
-        try widgets.put("003", try builder.get_widget("003"));
-        try widgets.put("004", try builder.get_widget("004"));
-        try widgets.put("005", try builder.get_widget("005"));
-        try widgets.put("006", try builder.get_widget("006"));
-        try widgets.put("ok", try builder.get_widget("ok"));
+//             const stat = try std.fs.cwd().statFile("VendiScooterWidget.zig");
+//             std.debug.print("{s}\n", .{@tagName(stat.kind)});
 
-        return VendiScooterWidget{
-            .ptr = window,
-            .widgets = widgets,
-            .allocator = allocator,
-        };
-    }
+//             c.gtk_image_set_from_file(@ptrCast(image.ptr), slice);
+//         }
 
-    pub fn deinit(self: *Self) void {
-        self.ptr.destroy();
-        self.widgets.deinit();
-    }
+// var buf: [std.fs.MAX_PATH_BYTES]u8 = undefined;
+// const cwd = try std.os.getcwd(&buf);
+// std.debug.print("cwd: {}\n\n\n", .{cwd});
 
-    pub fn show(self: *Self) void {
-        self.ptr.show_now();
-    }
+//         var widgets = WidgetMap.init(allocator);
 
-    pub fn setTextLabel(self: *Self, id: []const u8, text: [:0]const u8) !void {
-        const ptr = self.widgets.get(id).?.ptr;
-        c.gtk_label_set_text(@ptrCast(ptr), text);
-    }
-};
+//         // save widgets for later
+//         try widgets.put("window", window);
+//         try widgets.put("001", try builder.get_widget("001"));
+//         try widgets.put("002", try builder.get_widget("002"));
+//         try widgets.put("003", try builder.get_widget("003"));
+//         try widgets.put("004", try builder.get_widget("004"));
+//         try widgets.put("005", try builder.get_widget("005"));
+//         try widgets.put("006", try builder.get_widget("006"));
+//         try widgets.put("ok", try builder.get_widget("ok"));
+
+//         return VendiScooterWidget{
+//             .ptr = window,
+//             .widgets = widgets,
+//             .allocator = allocator,
+//         };
+//     }
+
+//     pub fn deinit(self: *Self) void {
+//         self.ptr.destroy();
+//         self.widgets.deinit();
+//     }
+
+//     pub fn show(self: *Self) void {
+//         self.ptr.show_now();
+//     }
+
+//     pub fn setTextLabel(self: *Self, id: []const u8, text: [:0]const u8) !void {
+//         const ptr = self.widgets.get(id).?.ptr;
+//         c.gtk_label_set_text(@ptrCast(ptr), text);
+//     }
+// };
 
 pub fn main() !void {
     const app = c.gtk_application_new("org.gtk.example", c.G_APPLICATION_FLAGS_NONE) orelse @panic("null app :(");
     defer c.g_object_unref(app);
 
-    _ = c.g_signal_connect_data(
-        app,
-        "activate",
-        @as(c.GCallback, @ptrCast(&activate)),
-        null,
-        null,
-        c.G_CONNECT_AFTER,
-    );
+    _ = c.g_signal_connect_data(app, "activate", @as(c.GCallback, @ptrCast(&activate)), null, null, c.G_CONNECT_AFTER);
     _ = c.g_application_run(@as(*c.GApplication, @ptrCast(app)), 0, null);
 }
 
@@ -92,6 +95,31 @@ fn activate(app: *c.GtkApplication) !void {
     // builder.set_application(app);
     // Builder.get_widget() returns an optional, so unwrap if there is a value
     var w = try builder.get_widget("window_71");
+
+    {
+        const image = try builder.get_widget("image1");
+        const slice: [:0]const u8 = "./res/1252.BMP";
+        c.gtk_image_set_from_file(@ptrCast(image.ptr), slice);
+    }
+    {
+        const image = try builder.get_widget("image2");
+        const slice: [:0]const u8 = "./res/0001.png";
+
+        c.gtk_image_set_from_file(@ptrCast(image.ptr), slice);
+    }
+
+    var buf: [std.fs.MAX_PATH_BYTES]u8 = undefined;
+    const cwd = try std.os.getcwd(&buf);
+    std.debug.print("cwd: {s}\n\n\n", .{cwd});
+
+    const refProvider = c.gtk_css_provider_new();
+    const refScreen = c.gtk_window_get_screen(@ptrCast(w.ptr));
+
+    const slice: [:0]const u8 = "./res/theme/gtk.css";
+    var err: [*c]c.GError = null;
+    _ = c.gtk_css_provider_load_from_path(@ptrCast(refProvider), slice, &err);
+    c.gtk_style_context_add_provider_for_screen(@ptrCast(refScreen), @ptrCast(refProvider), c.GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+
     w.show_all();
     w.connect("delete-event", @as(c.GCallback, @ptrCast(&c.gtk_main_quit)), null);
 
