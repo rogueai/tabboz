@@ -1,5 +1,108 @@
 const c = @import("cimport.zig");
-const util = @import("util.zig");
+
+const ActionBar = @import("actionbar.zig").ActionBar;
+
+const Bin = @import("bin.zig").Bin;
+
+const Box = @import("box.zig").Box;
+
+const button = @import("button.zig");
+const Button = button.Button;
+const ToggleButton = button.ToggleButton;
+const CheckButton = button.CheckButton;
+
+const ButtonBox = @import("button.zig").ButtonBox;
+
+const color = @import("colorchooser.zig");
+const ColorChooser = color.ColorChooser;
+const ColorButton = color.ColorButton;
+const ColorChooserWidget = color.ColorChooserWidget;
+const ColorChooserDialog = color.ColorChooserDialog;
+
+const combobox = @import("combobox.zig");
+const ComboBox = combobox.ComboBox;
+const ComboBoxText = combobox.ComboBoxText;
+
+const common = @import("common.zig");
+
+const Container = @import("container.zig").Container;
+
+const dialog = @import("dialog.zig");
+const Dialog = dialog.Dialog;
+const AboutDialog = dialog.AboutDialog;
+const MessageDialog = dialog.MessageDialog;
+
+const entry = @import("entry.zig");
+const Entry = entry.Entry;
+const EntryBuffer = entry.EntryBuffer;
+const EntryCompletion = entry.EntryCompletion;
+
+const Expander = @import("expander.zig").Expander;
+
+const filechooser = @import("filechooser.zig");
+const FileChooser = filechooser.FileChooser;
+const FileChooserButton = filechooser.FileChooserButton;
+const FileChooserDialog = filechooser.FileChooserDialog;
+const FileChooserWidget = filechooser.FileChooserWidget;
+
+const Fixed = @import("fixed.zig").Fixed;
+
+const flowbox = @import("flowbox.zig");
+const FlowBox = flowbox.FlowBox;
+const FlowBoxChild = flowbox.FlowBoxChild;
+
+const fontchooser = @import("fontchooser.zig");
+const FontChooser = fontchooser.FontChooser;
+const FontButton = fontchooser.FontButton;
+const FontChooserWidget = fontchooser.FontChooserWidget;
+const FontChooserDialog = fontchooser.FontChooserDialog;
+
+const frame = @import("frame.zig");
+const AspectFrame = frame.AspectFrame;
+const Frame = frame.Frame;
+
+const grid = @import("grid.zig");
+const Grid = grid.Grid;
+
+const HeaderBar = @import("headerbar.zig").HeaderBar;
+
+const Image = @import("image.zig").Image;
+
+const Invisible = @import("invisible.zig").Invisible;
+
+const Label = @import("label.zig").Label;
+
+const Layout = @import("layout.zig").Layout;
+
+const menu = @import("menu.zig");
+const Menu = menu.Menu;
+const MenuItem = menu.MenuItem;
+
+const Notebook = @import("notebook.zig").Notebook;
+
+const Paned = @import("paned.zig").Paned;
+
+const Popover = @import("popover.zig").Popover;
+
+const range = @import("range.zig");
+const Range = range.Range;
+const Scale = range.Scale;
+const SpinButton = range.SpinButton;
+
+const Revealer = @import("revealer.zig").Revealer;
+
+const Separator = @import("separator.zig").Separator;
+
+const stack = @import("stack.zig");
+const Stack = stack.Stack;
+const StackSwitcher = stack.StackSwitcher;
+const StackSidebar = stack.StackSidebar;
+
+const Switch = @import("switch.zig").Switch;
+
+const window = @import("window.zig");
+const ApplicationWindow = window.ApplicationWindow;
+const Window = window.Window;
 
 const std = @import("std");
 const fmt = std.fmt;
@@ -9,6 +112,63 @@ pub const Widget = struct {
     ptr: *c.GtkWidget,
 
     const Self = @This();
+
+    /// Kinds of widget-specific help. Used by the ::show-help signal.
+    pub const HelpType = enum(c_uint) {
+        /// Tooltip
+        tooltip = c.GTK_WIDGET_HELP_TOOLTIP,
+        /// What's this.
+        whats_this = c.GTK_WIDGET_HELP_WHATS_THIS,
+    };
+
+    /// Reading directions for text.
+    pub const TextDirection = enum(c_uint) {
+        /// No direction.
+        none = c.GTK_TEXT_DIR_NONE,
+        /// Left to right text direction.
+        ltr = c.GTK_TEXT_DIR_LTR,
+        /// Right to left text direction.
+        rtl = c.GTK_TEXT_DIR_RTL,
+    };
+
+    /// Specifies a preference for height-for-width or width-for-height geometry
+    /// management.
+    pub const SizeRequestMode = enum(c_uint) {
+        /// Prefer height-for-width geometry management
+        height_for_width = c.GTK_SIZE_REQUEST_HEIGHT_FOR_WIDTH,
+        /// Prefer width-for-height geometry management
+        width_for_height = c.GTK_SIZE_REQUEST_WIDTH_FOR_HEIGHT,
+        /// Don’t trade height-for-width or width-for-height
+        constant_size = c.GTK_SIZE_REQUEST_CONSTANT_SIZE,
+    };
+
+    /// Controls how a widget deals with extra space in a single (x or y) dimension.
+    ///
+    /// Alignment only matters if the widget receives a “too large” allocation,
+    /// for example if you packed the widget with the “expand” flag inside a Box,
+    /// then the widget might get extra space. If you have for example a 16x16
+    /// icon inside a 32x32 space, the icon could be scaled and stretched, it
+    /// could be centered, or it could be positioned to one side of the space.
+    ///
+    /// Note that in horizontal context .start and .end are interpreted relative
+    /// to text direction.
+    ///
+    /// Align.baseline support for it is optional for containers and widgets,
+    /// and it is only supported for vertical alignment. When its not supported
+    /// by a child or a container it is treated as Align.fill.
+    pub const Align = enum(c_uint) {
+        /// stretch to fill all space if possible, center if no meaningful way
+        /// to stretch
+        fill = c.GTK_ALIGN_FILL,
+        /// snap to left or top side, leaving space on right or bottom
+        start = c.GTK_ALIGN_START,
+        /// snap to right or bottom side, leaving space on left or top
+        end = c.GTK_ALIGN_END,
+        /// center natural width of widget inside the allocation
+        center = c.GTK_ALIGN_CENTER,
+        /// align the widget according to the baseline. Since 3.10.
+        baseline = c.GTK_ALIGN_BASELINE,
+    };
 
     /// Destroys a widget.
     ///
@@ -135,12 +295,15 @@ pub const Widget = struct {
     }
 
     pub fn set_sensitive(self: Self, visible: bool) void {
-        c.gtk_widget_set_sensitive(self.ptr, util.bool_to_c_int(visible));
+        c.gtk_widget_set_sensitive(self.ptr, common.bool_to_c_int(visible));
     }
 
     pub fn get_toplevel(self: Self) Self {
+        const widget: *c.GtkWidget = @ptrCast(self.ptr);
+        std.log.debug("{?}\n", .{@TypeOf(widget)});
+        const topLevel = c.gtk_widget_get_toplevel(widget);
         return Self{
-            .ptr = c.gtk_widget_get_toplevel(self.ptr),
+            .ptr = topLevel,
         };
     }
 
@@ -148,12 +311,16 @@ pub const Widget = struct {
         return if (c.gtk_widget_get_parent(self.ptr)) |w| Self{ .ptr = w } else null;
     }
 
-    pub fn get_root_window(self: Self) ?*c.GtkWindow {
-        return if (c.gtk_widget_get_root_window(self.ptr)) |w| {
-            const res = @as(*c.GtkWindow, @ptrCast(@alignCast(w)));
-            return res;
-        } else null;
-    }
+    // pub fn get_root_window(self: Self) ?Window {
+    //     return if (c.gtk_widget_get_root_window(@ptrCast(self.ptr))) |w| {
+    //         // const type : c.GtkWindowType = @enumFromInt(c.gtk_window_get_type());
+    //         // switch (type) {
+    //             // .
+    //         // }
+    //         const res = @as(*c.Gt(kWindow , @ptrCast(@alignCast(w));
+    //         return Window{ .ptr = res };
+    //     } else null;
+    // }
 
     // pub fn get_parent_window(self: Self) *c.GtkWindow {
     //     const window = c.gtk_widget_get_parent_window(self.ptr);
@@ -168,7 +335,7 @@ pub const Widget = struct {
     }
 
     pub fn set_has_tooltip(self: Self, tooltip: bool) void {
-        c.gtk_widget_set_has_tooltip(self.ptr, util.bool_to_c_int(tooltip));
+        c.gtk_widget_set_has_tooltip(self.ptr, common.bool_to_c_int(tooltip));
     }
 
     pub fn get_tooltip_text(self: Self, allocator: mem.Allocator) ?[:0]const u8 {
@@ -195,7 +362,7 @@ pub const Widget = struct {
     }
 
     pub fn set_visible(self: Self, vis: bool) void {
-        c.gtk_widget_set_visible(self.ptr, util.bool_to_c_int(vis));
+        c.gtk_widget_set_visible(self.ptr, common.bool_to_c_int(vis));
     }
 
     // pub fn get_halign(self: Self) Align {
@@ -231,17 +398,17 @@ pub const Widget = struct {
     }
 
     pub fn connect(self: Self, sig: [:0]const u8, callback: c.GCallback, data: ?c.gpointer) void {
-        _ = util.signal_connect(self.ptr, sig.ptr, callback, if (data) |d| d else null);
+        _ = common.signal_connect(self.ptr, sig.ptr, callback, if (data) |d| d else null);
     }
 
     pub fn connectWidget(self: Self, sig: []const u8, comptime callback: fn (widget: *Widget) void) void {
         const fnPtr = @as(c.GCallback, @ptrCast(&callback));
-        _ = util.signal_connect(self.ptr, sig.ptr, fnPtr, null);
+        _ = common.signal_connect(self.ptr, sig.ptr, fnPtr, null);
     }
 
     pub fn connectWidgetWithData(self: Self, comptime T: type, sig: []const u8, comptime callback: fn (widget: *Widget, data: *T) void, data: ?*T) void {
         const fnPtr = @as(c.GCallback, @ptrCast(&callback));
-        _ = util.signal_connect(self.ptr, sig.ptr, fnPtr, if (data) |d| @ptrCast(d) else null);
+        _ = common.signal_connect(self.ptr, sig.ptr, fnPtr, if (data) |d| @ptrCast(d) else null);
     }
 
     fn get_g_type(self: Self) u64 {
@@ -250,5 +417,311 @@ pub const Widget = struct {
 
     pub fn isa(self: Self, comptime T: type) bool {
         return T.is_instance(self.get_g_type());
+    }
+
+    pub fn to_about_dialog(self: Self) ?AboutDialog {
+        return if (self.isa(AboutDialog)) AboutDialog{
+            .ptr = @as(*c.GtkAboutDialog, @ptrCast(self.ptr)),
+        } else null;
+    }
+
+    pub fn to_action_bar(self: Self) ?ActionBar {
+        return if (self.isa(ActionBar)) ActionBar{
+            .ptr = @as(*c.GtkActionBar, @ptrCast(self.ptr)),
+        } else null;
+    }
+
+    pub fn to_aspect_frame(self: Self) ?AspectFrame {
+        return if (self.isa(AspectFrame)) AspectFrame{
+            .ptr = @as(*c.GtkAspectFrame, @ptrCast(self.ptr)),
+        } else null;
+    }
+
+    pub fn to_bin(self: Self) ?Bin {
+        return if (self.isa(Bin)) Bin{
+            .ptr = @as(*c.GtkBin, @ptrCast(self.ptr)),
+        } else null;
+    }
+
+    pub fn to_box(self: Self) ?Box {
+        return if (self.isa(Box)) Box{
+            .ptr = @as(*c.GtkBox, @ptrCast(self.ptr)),
+        } else null;
+    }
+
+    pub fn to_button(self: Self) ?Button {
+        return if (self.isa(Button)) Button{
+            .ptr = @as(*c.GtkButton, @ptrCast(self.ptr)),
+        } else null;
+    }
+
+    pub fn to_button_box(self: Self) ?ButtonBox {
+        return if (self.isa(ButtonBox)) ButtonBox{
+            .ptr = @as(*c.GtkButtonBox, @ptrCast(self.ptr)),
+        } else null;
+    }
+
+    pub fn to_check_button(self: Self) ?CheckButton {
+        return if (self.isa(CheckButton)) CheckButton{
+            .ptr = @as(*c.GtkCheckButton, @ptrCast(self.ptr)),
+        } else null;
+    }
+
+    pub fn to_color_chooser(self: Self) ?ColorChooser {
+        return if (self.isa(ColorChooser)) ColorChooser{
+            .ptr = @as(*c.GtkColorChooser, @ptrCast(self.ptr)),
+        } else null;
+    }
+
+    pub fn to_color_button(self: Self) ?ColorButton {
+        return if (self.isa(ColorButton)) ColorButton{
+            .ptr = @as(*c.GtkColorButton, @ptrCast(self.ptr)),
+        } else null;
+    }
+
+    pub fn to_color_chooser_widget(self: Self) ?ColorChooserWidget {
+        return if (self.isa(ColorChooserWidget)) ColorChooserWidget{
+            .ptr = @as(*c.GtkColorChooserdget, @ptrCast(self.ptr)),
+        } else null;
+    }
+
+    pub fn to_colorchooser_dialog(self: Self) ?ColorChooserDialog {
+        return if (self.isa(ColorChooserDialog)) ColorChooserDialog{
+            .ptr = @as(*c.GtkColorChooserDialog, @ptrCast(self.ptr)),
+        } else null;
+    }
+
+    pub fn to_combo_box(self: Self) ?ComboBox {
+        return if (self.isa(ComboBox)) ComboBox{
+            .ptr = @as(*c.GtkComboBox, @ptrCast(self.ptr)),
+        } else null;
+    }
+
+    pub fn to_combo_box_text(self: Self) ?ComboBoxText {
+        return if (self.isa(ComboBoxText)) ComboBoxText{
+            .ptr = @as(*c.GtkComboBoxText, @ptrCast(self.ptr)),
+        } else null;
+    }
+
+    pub fn to_container(self: Self) ?Container {
+        return if (self.isa(Container)) Container{
+            .ptr = @as(*c.GtkContainer, @ptrCast(self.ptr)),
+        } else null;
+    }
+
+    pub fn to_dialog(self: Self) ?Dialog {
+        return if (self.isa(Dialog)) Dialog{
+            .ptr = @as(*c.GtkDialog, @ptrCast(self.ptr)),
+        } else null;
+    }
+
+    pub fn to_entry(self: Self) ?Entry {
+        return if (self.isa(Entry)) Entry{
+            .ptr = @as(*c.GtkEntry, @ptrCast(self.ptr)),
+        } else null;
+    }
+
+    pub fn to_expander(self: Self) ?Expander {
+        return if (self.isa(Expander)) Expander{
+            .ptr = @as(*c.GtkExpander, @ptrCast(self.ptr)),
+        } else null;
+    }
+
+    pub fn to_filechooser(self: Self) ?FileChooser {
+        return if (self.isa(FileChooser)) FileChooser{
+            .ptr = @as(*c.GtkFileChooser, @ptrCast(self.ptr)),
+        } else null;
+    }
+
+    pub fn to_filechooser_button(self: Self) ?FileChooserButton {
+        return if (self.isa(FileChooserButton)) FileChooserButton{
+            .ptr = @as(*c.GtkFileChooserButton, @ptrCast(self.ptr)),
+        } else null;
+    }
+
+    pub fn to_filechooser_dialog(self: Self) ?FileChooserDialog {
+        return if (self.isa(FileChooserDialog)) FileChooserDialog{
+            .ptr = @as(*c.GtkFileChooserDialog, @ptrCast(self.ptr)),
+        } else null;
+    }
+
+    pub fn to_filechooser_widget(self: Self) ?FileChooserWidget {
+        return if (self.isa(FileChooserWidget)) FileChooserWidget{
+            .ptr = @as(*c.GtkFileChooserWidget, @ptrCast(self.ptr)),
+        } else null;
+    }
+
+    pub fn to_fixed(self: Self) ?Fixed {
+        return if (self.isa(Fixed)) Fixed{
+            .ptr = @as(*c.GtkFixed, @ptrCast(self.ptr)),
+        } else null;
+    }
+
+    pub fn to_flow_box(self: Self) ?FlowBox {
+        return if (self.isa(FlowBox)) FlowBox{
+            .ptr = @as(*c.GtkFlowBox, @ptrCast(self.ptr)),
+        } else null;
+    }
+
+    pub fn to_flow_box_child(self: Self) ?FlowBoxChild {
+        return if (self.isa(FlowBoxChild)) FlowBoxChild{
+            .ptr = @as(*c.GtkFlowBoxChild, @ptrCast(self.ptr)),
+        } else null;
+    }
+
+    pub fn to_font_chooser(self: Self) ?FontChooser {
+        return if (self.isa(FontChooser)) FontChooser{
+            .ptr = @as(*c.GtkFontChooser, @ptrCast(self.ptr)),
+        } else null;
+    }
+
+    pub fn to_font_button(self: Self) ?FontButton {
+        return if (self.isa(FontButton)) FontButton{
+            .ptr = @as(*c.GtkFontButton, @ptrCast(self.ptr)),
+        } else null;
+    }
+
+    pub fn to_font_chooser_widget(self: Self) ?FontChooserWidget {
+        return if (self.isa(FontChooserWidget)) FontChooserWidget{
+            .ptr = @as(*c.GtkFontChooserWidget, @ptrCast(self.ptr)),
+        } else null;
+    }
+
+    pub fn to_font_chooser_dialog(self: Self) ?FontChooserDialog {
+        return if (self.isa(FontChooserDialog)) FontChooserDialog{
+            .ptr = @as(*c.GtkFontChooserDialog, @ptrCast(self.ptr)),
+        } else null;
+    }
+
+    pub fn to_frame(self: Self) ?Frame {
+        return if (self.isa(Frame)) Frame{
+            .ptr = @as(*c.GtkFrame, @ptrCast(self.ptr)),
+        } else null;
+    }
+
+    pub fn to_grid(self: Self) ?Grid {
+        return if (self.isa(Grid)) Grid{
+            .ptr = @as(*c.GtkGrid, @ptrCast(self.ptr)),
+        } else null;
+    }
+
+    pub fn to_header_bar(self: Self) ?HeaderBar {
+        return if (self.isa(HeaderBar)) HeaderBar{
+            .ptr = @as(*c.GtkHeaderBar, @ptrCast(self.ptr)),
+        } else null;
+    }
+
+    pub fn to_image(self: Self) ?Image {
+        return if (self.isa(Image)) Image{
+            .ptr = @as(*c.GtkImage, @ptrCast(self.ptr)),
+        } else null;
+    }
+
+    pub fn to_invisible(self: Self) ?Invisible {
+        return if (self.isa(Invisible)) Invisible{ .ptr = @as(*c.GtkInvisible, @ptrCast(self.ptr)) };
+    }
+
+    pub fn to_label(self: Self) ?Label {
+        return if (self.isa(Label)) Label{
+            .ptr = @as(*c.GtkLabel, @ptrCast(self.ptr)),
+        } else null;
+    }
+
+    pub fn to_layout(self: Self) ?Layout {
+        return if (self.isa(Layout)) Layout{
+            .ptr = @as(*c.GtkLayout, @ptrCast(self.ptr)),
+        } else null;
+    }
+
+    pub fn to_menu(self: Self) ?Menu {
+        return if (self.isa(Menu)) Menu{
+            .ptr = @as(*c.GtkMenu, @ptrCast(self.ptr)),
+        } else null;
+    }
+
+    pub fn to_menu_item(self: Self) ?MenuItem {
+        return if (self.isa(MenuItem)) MenuItem{
+            .ptr = @as(*c.GtkMenuItem, @ptrCast(self.ptr)),
+        } else null;
+    }
+
+    pub fn to_message_dialog(self: Self) ?MessageDialog {
+        return if (self.isa(MessageDialog)) MessageDialog{
+            .ptr = @as(*c.GtkMessageDialog, @ptrCast(self.ptr)),
+        } else null;
+    }
+
+    pub fn to_notebook(self: Self) ?Notebook {
+        return if (self.isa(Notebook)) Notebook{
+            .ptr = @as(*c.GtkNotebook, @ptrCast(self.ptr)),
+        } else null;
+    }
+
+    pub fn to_paned(self: Self) ?Paned {
+        return if (self.isa(Paned)) Paned{
+            .ptr = @as(*c.GtkPaned, @ptrCast(self.ptr)),
+        } else null;
+    }
+
+    pub fn to_popover(self: Self) ?Popover {
+        return if (self.isa(Popover)) Popover{
+            .ptr = @as(*c.GtkPopover, @ptrCast(self.ptr)),
+        } else null;
+    }
+
+    pub fn to_range(self: Self) ?Range {
+        return if (self.isa(Range)) Range{
+            .ptr = @as(*c.GtkRange, @ptrCast(self.ptr)),
+        } else null;
+    }
+
+    pub fn to_revealer(self: Self) ?Revealer {
+        return if (self.isa(Revealer)) Revealer{
+            .ptr = @as(*c.GtkRevealer, @ptrCast(self.ptr)),
+        } else null;
+    }
+
+    pub fn to_scale(self: Self) ?Scale {
+        return if (self.isa(Scale)) Scale{ .ptr = @as(*c.GtkScale, @ptrCast(self.ptr)) } else null;
+    }
+
+    pub fn to_separator(self: Self) ?Separator {
+        return if (self.isa(Separator)) Separator{
+            .ptr = @as(*c.GtkSeparator, @ptrCast(self.ptr)),
+        } else null;
+    }
+
+    pub fn to_spin_button(self: Self) ?SpinButton {
+        return if (self.isa(SpinButton)) SpinButton{ .ptr = @as(*c.GtkSpinButton, @ptrCast(self.ptr)) } else null;
+    }
+
+    pub fn to_stack(self: Self) ?Stack {
+        return if (self.isa(Stack)) Stack{ .ptr = @as(*c.GtkStack, @ptrCast(self.ptr)) } else null;
+    }
+
+    pub fn to_stack_switcher(self: Self) ?StackSwitcher {
+        return if (self.isa(StackSwitcher)) StackSwitcher{ .ptr = @as(*c.GtkStackSwitcher, @ptrCast(self.ptr)) } else null;
+    }
+
+    pub fn to_stack_sidebar(self: Self) ?StackSidebar {
+        return if (self.isa(StackSidebar)) StackSidebar{ .ptr = @as(*c.GtkStackSidebar, @ptrCast(self.ptr)) } else null;
+    }
+
+    pub fn to_switch(self: Self) ?Switch {
+        return if (self.isa(Switch)) Switch{
+            .ptr = @as(*c.GtkSwitch, @ptrCast(self.ptr)),
+        } else null;
+    }
+
+    pub fn to_toggle_button(self: Self) ?ToggleButton {
+        return if (self.isa(ToggleButton)) ToggleButton{
+            .ptr = @as(*c.GtkToggleButton, @ptrCast(self.ptr)),
+        } else null;
+    }
+
+    pub fn to_window(self: Self) ?Window {
+        return if (self.isa(Window)) Window{
+            .ptr = @as(*c.GtkWindow, @ptrCast(self.ptr)),
+        } else null;
     }
 };

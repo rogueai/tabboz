@@ -1,6 +1,11 @@
 const c = @import("cimport.zig");
+const ColorChooserDialog = @import("colorchooser.zig").ColorChooserDialog;
+const Container = @import("container.zig").Container;
+const FileChooserDialog = @import("filechooser.zig").FileChooserDialog;
+const FontChooserDialog = @import("fontchooser.zig").FontChooserDialog;
 const License = @import("enums.zig").License;
 const Widget = @import("widget.zig").Widget;
+const Window = @import("window.zig").Window;
 
 const std = @import("std");
 const fmt = std.fmt;
@@ -52,9 +57,25 @@ pub const Dialog = struct {
 
     const Self = @This();
 
-    pub fn new() Self {
+    pub fn new(parent: anytype, title: ?[:0]const u8, bOk: ?[:0]const u8, bCancel: ?[:0]const u8) Self {
+        var dialog = c.gtk_dialog_new();
+        c.gtk_window_set_destroy_with_parent(@ptrCast(dialog), c.gtk_false());
+        if (parent) |p| {
+            c.gtk_window_set_transient_for(@ptrCast(dialog), p);
+        } else {
+            c.gtk_window_set_transient_for(@ptrCast(dialog), null);
+        }
+        if (title) |t| {
+            c.gtk_window_set_title(@ptrCast(dialog), t);
+        }
+        if (bOk) |ok| {
+            _ = c.gtk_dialog_add_button(@ptrCast(dialog), ok, c.GTK_RESPONSE_OK);
+        }
+        if (bCancel) |cancel| {
+            _ = c.gtk_dialog_add_button(@ptrCast(dialog), cancel, c.GTK_RESPONSE_CANCEL);
+        }
         return Self{
-            .ptr = @as(*c.GtkDialog, @ptrCast(c.gtk_dialog_new())),
+            .ptr = @as(*c.GtkDialog, @ptrCast(dialog)),
         };
     }
 
@@ -62,8 +83,24 @@ pub const Dialog = struct {
         return c.gtk_dialog_run(self.ptr);
     }
 
+    pub fn get_content_area(self: Self) Widget {
+        return Widget{ .ptr = @as(*c.GtkWidget, @ptrCast(c.gtk_dialog_get_content_area(@ptrCast(self.ptr)))) };
+    }
+
     pub fn as_widget(self: Self) Widget {
         return Widget{ .ptr = @as(*c.GtkWidget, @ptrCast(self.ptr)) };
+    }
+
+    pub fn as_window(self: Self) Window {
+        return Window{ .ptr = @as(*c.GtkWindow, @ptrCast(self.ptr)) };
+    }
+
+    pub fn as_container(self: Self) Container {
+        return Container{ .ptr = @as(*c.GtkContainer, @ptrCast(self.ptr)) };
+    }
+
+    pub fn is_instance(gtype: u64) bool {
+        return (gtype == c.gtk_dialog_get_type() or AboutDialog.is_instance(gtype) or ColorChooserDialog.is_instance(gtype) or FontChooserDialog.is_instance(gtype) or MessageDialog.is_instance(gtype));
     }
 
     fn get_g_type(self: Self) u64 {
@@ -72,6 +109,36 @@ pub const Dialog = struct {
 
     pub fn isa(self: Self, comptime T: type) bool {
         return T.is_instance(self.get_g_type());
+    }
+
+    pub fn to_about_dialog(self: Self) ?AboutDialog {
+        return if (self.isa(AboutDialog)) AboutDialog{
+            .ptr = @as(*c.GtkAboutDialog, @ptrCast(self.ptr)),
+        } else null;
+    }
+
+    pub fn to_colorchooser_dialog(self: Self) ?ColorChooserDialog {
+        return if (self.isa(ColorChooserDialog)) ColorChooserDialog{
+            .ptr = @as(*c.GtkColorChooserDialog, @ptrCast(self.ptr)),
+        } else null;
+    }
+
+    pub fn to_filechooser_dialog(self: Self) ?FileChooserDialog {
+        return if (self.isa(FileChooserDialog)) FileChooserDialog{
+            .ptr = @as(*c.GtkFileChooserDialog, @ptrCast(self.ptr)),
+        } else null;
+    }
+
+    pub fn to_fontchooser_dialog(self: Self) ?FontChooserDialog {
+        return if (self.isa(FontChooserDialog)) FontChooserDialog{
+            .ptr = @as(*c.GtkFontChooserDialog, @ptrCast(self.ptr)),
+        } else null;
+    }
+
+    pub fn to_message_dialog(self: Self) ?MessageDialog {
+        return if (self.isa(MessageDialog)) MessageDialog{
+            .ptr = @as(*c.GtkMessageDialog, @ptrCast(self.ptr)),
+        } else null;
     }
 };
 
@@ -254,6 +321,10 @@ pub const AboutDialog = struct {
         return Widget{ .ptr = @as(*c.GtkWidget, @ptrCast(self.ptr)) };
     }
 
+    pub fn as_window(self: Self) Window {
+        return Window{ .ptr = @as(*c.GtkWindow, @ptrCast(self.ptr)) };
+    }
+
     pub fn is_instance(gtype: u64) bool {
         return (gtype == c.gtk_about_dialog_get_type());
     }
@@ -302,6 +373,10 @@ pub const MessageDialog = struct {
 
     pub fn as_widget(self: Self) Widget {
         return Widget{ .ptr = @as(*c.GtkWidget, @ptrCast(self.ptr)) };
+    }
+
+    pub fn as_window(self: Self) Window {
+        return Window{ .ptr = @as(*c.GtkWindow, @ptrCast(self.ptr)) };
     }
 
     pub fn is_instance(gtype: u64) bool {

@@ -18,7 +18,7 @@ pub fn RissaWidget() type {
             try builder.add_from_string(gui.window_100);
             // Connect signal handlers to the constructed widgets.
             const window = try builder.get_widget("window_100");
-            _ = window.connect("destroy", @as(c.GCallback, @ptrCast(&c.gtk_main_quit)), null);
+            // _ = window.connect("destroy", @as(c.GCallback, @ptrCast(&c.gtk_main_quit)), null);
 
             const image = try builder.get_widget("image");
             const slice: [:0]const u8 = "./res/1283.BMP";
