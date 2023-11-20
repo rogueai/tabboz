@@ -55,11 +55,19 @@ pub const Dialog = struct {
         help = c.GTK_RESPONSE_HELP,
     };
 
+    pub const DefaultSize = struct {
+        width: u16,
+        height: u16,
+    };
+
     const Self = @This();
 
-    pub fn new(parent: anytype, title: ?[:0]const u8, bOk: ?[:0]const u8, bCancel: ?[:0]const u8) Self {
+    pub fn new(parent: anytype, size: ?DefaultSize, title: ?[:0]const u8, bOk: ?[:0]const u8, bCancel: ?[:0]const u8) Self {
         var dialog = c.gtk_dialog_new();
         c.gtk_window_set_destroy_with_parent(@ptrCast(dialog), c.gtk_false());
+        if (size) |s| {
+            c.gtk_window_set_default_size(@ptrCast(dialog), s.width, s.height);
+        }
         if (parent) |p| {
             c.gtk_window_set_transient_for(@ptrCast(dialog), p);
         } else {
@@ -83,8 +91,8 @@ pub const Dialog = struct {
         return c.gtk_dialog_run(self.ptr);
     }
 
-    pub fn get_content_area(self: Self) Widget {
-        return Widget{ .ptr = @as(*c.GtkWidget, @ptrCast(c.gtk_dialog_get_content_area(@ptrCast(self.ptr)))) };
+    pub fn get_content_area(self: Self) Container {
+        return Container{ .ptr = @as(*c.GtkContainer, @ptrCast(c.gtk_dialog_get_content_area(@ptrCast(self.ptr)))) };
     }
 
     pub fn as_widget(self: Self) Widget {

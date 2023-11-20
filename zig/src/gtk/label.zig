@@ -57,7 +57,7 @@ pub const Label = struct {
     /// the “use-underline” property to `false` as a side effect.
     ///
     /// This function will set the “use-markup” property to `false` as a side effect.
-    pub fn set_text(self: Self, text: []const u8) void {
+    pub fn set_text(self: Self, text: [:0]const u8) void {
         c.gtk_label_set_text(self.ptr, text.ptr);
     }
 

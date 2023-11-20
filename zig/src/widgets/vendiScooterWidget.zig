@@ -48,14 +48,14 @@ pub const VendiScooterWidget = struct {
 
     pub fn activate(app: *c.GtkApplication, instance: *Self) void {
         instance.create(app) catch |e| {
-            std.debug.print("{}\n", .{e});
+            std.debug.print("{?}\n", .{e});
         };
     }
 
     fn create(self: *Self, app: *c.GtkApplication) !void {
         const builder = gtk.Builder.new();
         builder.add_from_string(gui.window_71) catch |e| {
-            std.debug.print("{}\n", .{e});
+            std.debug.print("{?}\n", .{e});
             return;
         };
         builder.set_application(app);
@@ -79,10 +79,6 @@ pub const VendiScooterWidget = struct {
         try self.widgets.put("005", try builder.get_widget("005"));
         try self.widgets.put("006", try builder.get_widget("006"));
 
-        var buf: [std.fs.MAX_PATH_BYTES]u8 = undefined;
-        const cwd = try std.os.getcwd(&buf);
-        std.debug.print("cwd: {s}\n\n\n", .{cwd});
-
         const refProvider = c.gtk_css_provider_new();
         const refScreen = c.gtk_window_get_screen(@ptrCast(w.ptr));
 
@@ -105,25 +101,27 @@ pub const VendiScooterWidget = struct {
         _ = widget;
         // const root_window = c.gtk_widget_get_root_window(@ptrCast(widget));
 
-        var dialog = gtk.Dialog.new(null, "title", "ok", "cancel");
-        dialog.as_window().set_default_size(300, 300);
-        dialog.as_widget().show_all();
+        var dialog = gtk.Dialog.new(
+            null,
+            .{ .width = 200, .height = 200 },
+            "title",
+            "ok",
+            "cancel",
+        );
 
         var rissa = RissaWidget().init(instance.context.allocator) catch unreachable;
         var content_area = dialog.get_content_area();
-        content_area.to_container().?.add(rissa.ptr);
+        content_area.add(rissa.ptr);
 
         var result = dialog.run();
-        std.log.debug("Result {?}\n", .{result});
-
         switch (result) {
             c.GTK_RESPONSE_CANCEL => {
                 instance.context.text = "false";
-                std.log.debug("Response\n", .{});
+                std.log.debug("Cancel", .{});
             },
             c.GTK_RESPONSE_OK => {
                 instance.context.text = "true";
-                std.log.debug("Response\n", .{});
+                std.log.debug("Ok", .{});
             },
             else => {},
         }
