@@ -170,6 +170,12 @@ pub const Widget = struct {
         baseline = c.GTK_ALIGN_BASELINE,
     };
 
+    pub fn as(widget: anytype) Widget {
+        return Self{
+            .ptr = @ptrCast(widget),
+        };
+    }
+
     /// Destroys a widget.
     ///
     /// When a widget is destroyed all references it holds on other objects will
@@ -300,7 +306,6 @@ pub const Widget = struct {
 
     pub fn get_toplevel(self: Self) Self {
         const widget: *c.GtkWidget = @ptrCast(self.ptr);
-        std.log.debug("{?}\n", .{@TypeOf(widget)});
         const topLevel = c.gtk_widget_get_toplevel(widget);
         return Self{
             .ptr = topLevel,

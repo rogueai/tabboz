@@ -62,22 +62,22 @@ pub const VendiScooterWidget = struct {
         // Builder.get_widget() returns an optional, so unwrap if there is a value
         var w = try builder.get_widget("window_71");
         {
-            const image = try builder.get_widget("image1");
+            const image = try builder.get(gtk.Image, "image1");
             const slice: [:0]const u8 = "./res/1252.BMP";
             c.gtk_image_set_from_file(@ptrCast(image.ptr), slice);
         }
         {
-            const image = try builder.get_widget("image2");
+            const image = try builder.get(gtk.Image, "image2");
             const slice: [:0]const u8 = "./res/0001.png";
             c.gtk_image_set_from_file(@ptrCast(image.ptr), slice);
         }
 
-        try self.widgets.put("001", try builder.get_widget("001"));
-        try self.widgets.put("002", try builder.get_widget("002"));
-        try self.widgets.put("003", try builder.get_widget("003"));
-        try self.widgets.put("004", try builder.get_widget("004"));
-        try self.widgets.put("005", try builder.get_widget("005"));
-        try self.widgets.put("006", try builder.get_widget("006"));
+        try self.widgets.put("001", try builder.get(gtk.Widget, "001"));
+        try self.widgets.put("002", try builder.get(gtk.Widget, "002"));
+        try self.widgets.put("003", try builder.get(gtk.Widget, "003"));
+        try self.widgets.put("004", try builder.get(gtk.Widget, "004"));
+        try self.widgets.put("005", try builder.get(gtk.Widget, "005"));
+        try self.widgets.put("006", try builder.get(gtk.Widget, "006"));
 
         const refProvider = c.gtk_css_provider_new();
         const refScreen = c.gtk_window_get_screen(@ptrCast(w.ptr));
@@ -98,11 +98,11 @@ pub const VendiScooterWidget = struct {
     }
 
     fn openDialog(widget: *c.GtkButton, instance: *Self) void {
-        _ = widget;
-        // const root_window = c.gtk_widget_get_root_window(@ptrCast(widget));
+        const button = gtk.Widget.as(widget);
+        var top = button.get_toplevel().to_window();
 
         var dialog = gtk.Dialog.new(
-            null,
+            top,
             .{ .width = 200, .height = 200 },
             "title",
             "ok",

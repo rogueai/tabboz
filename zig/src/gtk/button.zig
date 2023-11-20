@@ -8,7 +8,7 @@ const PositionType = enums.PositionType;
 const ReliefStyle = enums.ReliefStyle;
 const Widget = @import("widget.zig").Widget;
 
-const std = @cImport("std");
+const std = @import("std");
 const fmt = std.fmt;
 const mem = std.mem;
 

@@ -7,7 +7,7 @@
 # Run
 Per lanciare i due esempi lanciare:
 
-- zig build rissa
+- zig build tabboz
 
 - zig build vendiScooter 
 

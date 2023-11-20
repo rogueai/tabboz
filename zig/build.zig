@@ -6,11 +6,10 @@ pub fn build(b: *Builder) void {
 
     const gtk = b.addModule("gtk", .{ .source_file = .{ .path = "src/gtk/lib.zig" } });
     const gui = b.addModule("gui", .{ .source_file = .{ .path = "src/gui/gui.zig" } });
-
     {
         const exe = b.addExecutable(.{
-            .name = "rissa",
-            .root_source_file = .{ .path = "src/widgets/rissaWidget.zig" },
+            .name = "tabboz",
+            .root_source_file = .{ .path = "./src/main.zig" },
             .target = target,
             .optimize = optimize,
         });
@@ -24,9 +23,10 @@ pub fn build(b: *Builder) void {
         if (b.args) |args| {
             run_cmd.addArgs(args);
         }
-        const run_step = b.step("rissa", "Run the app");
+        const run_step = b.step("tabboz", "Run the app");
         run_step.dependOn(&run_cmd.step);
     }
+
     {
         const exe = b.addExecutable(.{
             .name = "vendiScooter",
