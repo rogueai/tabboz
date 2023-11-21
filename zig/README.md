@@ -16,3 +16,10 @@ Per lanciare i test presenti in un file:
     
 - zig test src/zarrosim.zig
 
+
+
+# TODO:
+
+Serialize/Deserialize
+
+https://github.com/ziglibs/s2shttps://github.com/ziglibs/s2s

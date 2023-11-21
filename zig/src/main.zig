@@ -1,15 +1,15 @@
 const std = @import("std");
 const GTK = @import("gtk");
-const gui = @import("gui");
-
 const c = GTK.c;
 const gtk = GTK.gtk;
+const gui = @import("gui/gui.zig");
+
+const Context = @import("context.zig").Context;
+const I18n = @import("context.zig").I18n;
+
+const TabaccaioWidget = @import("tabaccaioWidget.zig").TabaccaioWidget;
 
 var mainApp: *c.GtkApplication = undefined;
-
-const Context = struct {
-    allocator: std.mem.Allocator,
-};
 
 pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
@@ -18,9 +18,15 @@ pub fn main() !void {
     mainApp = c.gtk_application_new("org.gtk.example", c.G_APPLICATION_FLAGS_NONE) orelse @panic("null app :(");
     defer c.g_object_unref(mainApp);
 
-    var context = .{
+    var i18n = I18n.init(allocator);
+    // defer i18n.deinit();
+
+    var context = Context{
         .allocator = allocator,
+        .i18n = i18n,
     };
+
+    _ = i18n.get(0);
 
     _ = c.g_signal_connect_data(mainApp, "activate", @as(c.GCallback, @ptrCast(&activate)), &context, null, c.G_CONNECT_AFTER);
     _ = c.g_application_run(@as(*c.GApplication, @ptrCast(mainApp)), 0, null);
@@ -33,14 +39,60 @@ pub fn activate(app: *c.GtkApplication, context: *Context) void {
     };
 }
 
-fn create(app: *c.GtkApplication, _: *Context) !void {
+fn create(app: *c.GtkApplication, context: *Context) !void {
     const builder = gtk.Builder.new();
     try builder.add_from_string(gui.window_tabboz);
     builder.set_application(app);
-    var w = try builder.get_widget("window");
-    attachTheme(@ptrCast(w.ptr));
-    w.show_all();
-    w.connect("delete-event", @as(c.GCallback, @ptrCast(&c.gtk_main_quit)), null);
+    var window: gtk.Window = try builder.get(gtk.Window, "window");
+    attachTheme(@ptrCast(window.ptr));
+
+    _ = context.i18n.get(0);
+    try attachEvents(builder, context);
+
+    window.as_widget().show_all();
+    window.as_widget().connect("delete-event", @as(c.GCallback, @ptrCast(&c.gtk_main_quit)), null);
+}
+
+fn attachEvents(builder: gtk.Builder, context: *Context) !void {
+    const tabaccaioMenu: gtk.MenuItem = try builder.get(gtk.MenuItem, "tabaccaioMenu");
+
+    tabaccaioMenu.set_label("Tabaccaio");
+    // tabaccaioMenuItem.set_submenu(attivitaMenu.as_widget());
+    tabaccaioMenu.connect_activate(@as(c.GCallback, @ptrCast(&onTabaccaio)), context);
+
+    // var top = attivitaMenu.as_widget().get_toplevel().to_window();
+    // _ = top;
+
+    // _ = dialog;
+}
+
+fn onTabaccaio(widget: *c.GtkWidget, context: *Context) void {
+    _ = context.i18n.get(0);
+    const menu = gtk.Widget.as(widget);
+    var top = menu.get_toplevel().to_window();
+
+    var dialog = gtk.Dialog.new(top, .{ .width = 200, .height = 200 }, "title", "ok", "cancel");
+
+    var tabaccaioWidget = TabaccaioWidget.init(context);
+    defer tabaccaioWidget.deinit();
+    var content = tabaccaioWidget.create() catch unreachable;
+    var content_area = dialog.get_content_area();
+    content_area.add(content.*);
+
+    var result = dialog.run();
+    switch (result) {
+        c.GTK_RESPONSE_CANCEL => {
+            // instance.context.text = "false";
+            std.log.debug("Cancel", .{});
+        },
+        c.GTK_RESPONSE_OK => {
+            // instance.context.text = "true";
+            std.log.debug("Ok", .{});
+        },
+        else => {},
+    }
+    // instance.update();
+    dialog.as_widget().destroy();
 }
 
 fn attachTheme(window: *c.GtkWindow) void {

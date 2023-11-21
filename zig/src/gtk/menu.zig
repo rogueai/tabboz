@@ -41,7 +41,7 @@ pub const MenuItem = struct {
 
     pub fn new() Self {
         return Self{
-            .ptr = @as(*c.GtkMenuItem, @ptrCast(c.gtk_menu_tem_new())),
+            .ptr = @as(*c.GtkMenuItem, @ptrCast(c.gtk_menu_item_new())),
         };
     }
 

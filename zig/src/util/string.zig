@@ -1,7 +1,5 @@
 const std = @import("std");
-
 const jsonStrings = @embedFile("strings.json");
-
 const Map = std.StringArrayHashMapUnmanaged([]const u8);
 
 pub const I18n = struct {
@@ -19,8 +17,15 @@ pub const I18n = struct {
         };
     }
 
-    pub fn get(self: *I18n, key: []const u8) ?[]const u8 {
-        return self.strings.get(key);
+    pub fn get(self: *I18n, key: usize) ?[:0]const u8 {
+        var buf: [16]u8 = undefined;
+        const sKey = std.fmt.bufPrint(&buf, "{d}", .{key}) catch "0";
+        if (self.strings.get(sKey)) |value| {
+            const sValue = std.fmt.allocPrintZ(self.allocator, "{s}", .{value}) catch "";
+            std.log.debug("Key: {s} Value: {s}", .{ sKey, sValue });
+            return sValue;
+        }
+        return null;
     }
 
     pub fn deinit(self: *I18n) void {
@@ -31,7 +36,7 @@ pub const I18n = struct {
         const JsonMap = std.json.ArrayHashMap([]const u8);
         var result = try std.json.parseFromSlice(JsonMap, allocator, jsonStrings, .{});
         defer result.deinit();
-        return try result.value.map.clone(std.testing.allocator);
+        return try result.value.map.clone(allocator);
     }
 };
 
