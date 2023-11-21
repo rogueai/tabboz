@@ -74,7 +74,7 @@ fn onTabaccaio(widget: *c.GtkWidget, context: *Context) void {
     var dialog = gtk.Dialog.new(top, .{ .width = 200, .height = 200 }, "title", "ok", "cancel");
 
     var tabaccaioWidget = TabaccaioWidget.init(context);
-    defer tabaccaioWidget.deinit();
+    defer TabaccaioWidget.deinit();
     var content = tabaccaioWidget.create() catch unreachable;
     var content_area = dialog.get_content_area();
     content_area.add(content.*);

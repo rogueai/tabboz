@@ -11,20 +11,20 @@ const SelectEvent = struct {
 };
 
 pub const TabaccaioWidget = struct {
-    context: *Context,
-    widgets: std.StringHashMap(gtk.Widget),
-
     const Self = @This();
+    const Map = std.StringHashMap(gtk.Widget);
 
-    pub fn init(context: *Context) Self {
-        return .{
-            .context = context,
-            .widgets = std.StringHashMap(gtk.Widget).init(context.allocator),
-        };
+    var widgets: Map = undefined;
+    var context: *Context = undefined;
+
+    pub fn init(_context: *Context) Self {
+        widgets = Map.init(_context.allocator);
+        context = _context;
+        return .{};
     }
 
-    pub fn deinit(self: *Self) void {
-        self.widgets.deinit();
+    pub fn deinit() void {
+        widgets.deinit();
     }
 
     pub fn create(self: *Self) !*gtk.Widget {
@@ -35,7 +35,7 @@ pub const TabaccaioWidget = struct {
         // Builder.get_widget() returns an optional, so unwrap if there is a value
         var w = try builder.get_widget("window");
 
-        try self.widgets.put("message", try builder.get_widget("message"));
+        try widgets.put("message", try builder.get_widget("message"));
 
         var grid: gtk.Grid = try builder.get(gtk.Grid, "grid");
 
@@ -46,10 +46,7 @@ pub const TabaccaioWidget = struct {
             var image = gtk.Image.new_from_file(fileName);
             button.set_image(image.as_widget());
 
-            const s = self.context.i18n.get(1).?;
-            std.log.debug("{s}", .{s});
-
-            var event = try self.context.allocator.create(SelectEvent);
+            var event = try context.allocator.create(SelectEvent);
             event.* = .{
                 .self = self,
                 .n = i,
@@ -73,18 +70,13 @@ pub const TabaccaioWidget = struct {
         return &w;
     }
 
-    fn update(self: *Self, n: usize) void {
-        const label = self.widgets.get("message");
+    fn onSelect(_: *c.GtkButton, event: *SelectEvent) void {
+        const label = widgets.get("message");
         if (label) |l| {
-            if (self.context.i18n.get(1400 + n)) |text| {
+            if (context.i18n.get(1400 + event.n)) |text| {
                 std.log.debug("{s}", .{text});
                 l.to_label().?.set_text(text);
             }
         }
-    }
-
-    fn onSelect(_: *c.GtkButton, event: *SelectEvent) void {
-        _ = event.self.context.i18n.get(0);
-        event.self.update(event.n);
     }
 };
