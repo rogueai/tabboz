@@ -9,7 +9,10 @@ pub const I18n = struct {
     strings: Map,
 
     pub fn init(allocator: std.mem.Allocator) I18n {
-        var map = parse(allocator) catch unreachable;
+        var map = parse(allocator) catch |err| default: {
+            std.log.err("Error while parsing strings.json: {?}", .{err});
+            break :default Map{}; // return an empty map
+        };
         return .{
             .allocator = allocator,
             .strings = map,
@@ -26,9 +29,9 @@ pub const I18n = struct {
 
     fn parse(allocator: std.mem.Allocator) !Map {
         const JsonMap = std.json.ArrayHashMap([]const u8);
-        var result = try std.json.parseFromSliceLeaky(JsonMap, allocator, jsonStrings, .{});
-        defer result.deinit(allocator);
-        return try result.map.clone(std.testing.allocator);
+        var result = try std.json.parseFromSlice(JsonMap, allocator, jsonStrings, .{});
+        defer result.deinit();
+        return try result.value.map.clone(std.testing.allocator);
     }
 };
 
