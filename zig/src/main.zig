@@ -1,13 +1,8 @@
 const std = @import("std");
-const GTK = @import("gtk");
-const c = GTK.c;
-const gtk = GTK.gtk;
-const gui = @import("gui/gui.zig");
 
-const Context = @import("context.zig").Context;
-const I18n = @import("context.zig").I18n;
-
-const TabaccaioWidget = @import("tabaccaioWidget.zig").TabaccaioWidget;
+const sim = @import("zarrosim.zig");
+const c = sim.c;
+const gtk = sim.gtk;
 
 var mainApp: *c.GtkApplication = undefined;
 var allocator: std.mem.Allocator = undefined;
@@ -19,10 +14,10 @@ pub fn main() !void {
     mainApp = c.gtk_application_new("org.gtk.example", c.G_APPLICATION_FLAGS_NONE) orelse @panic("null app :(");
     defer c.g_object_unref(mainApp);
 
-    var i18n = I18n.init(allocator);
+    var i18n = sim.I18n.init(allocator);
     defer i18n.deinit();
 
-    var context = Context{
+    var context = sim.Context{
         .i18n = i18n,
     };
 
@@ -33,15 +28,15 @@ pub fn main() !void {
     c.gtk_main();
 }
 
-pub fn activate(app: *c.GtkApplication, context: *Context) void {
+pub fn activate(app: *c.GtkApplication, context: *sim.Context) void {
     create(app, context) catch |e| {
         std.debug.print("{?}\n", .{e});
     };
 }
 
-fn create(app: *c.GtkApplication, context: *Context) !void {
+fn create(app: *c.GtkApplication, context: *sim.Context) !void {
     const builder = gtk.Builder.new();
-    try builder.add_from_string(gui.window_tabboz);
+    try builder.add_from_string(sim.ui.window_zarrosim);
     builder.set_application(app);
     var window: gtk.Window = try builder.get(gtk.Window, "window");
     attachTheme(@ptrCast(window.ptr));
@@ -53,7 +48,7 @@ fn create(app: *c.GtkApplication, context: *Context) !void {
     window.as_widget().connect("delete-event", @as(c.GCallback, @ptrCast(&c.gtk_main_quit)), null);
 }
 
-fn attachEvents(builder: gtk.Builder, context: *Context) !void {
+fn attachEvents(builder: gtk.Builder, context: *sim.Context) !void {
     const tabaccaioMenu: gtk.MenuItem = try builder.get(gtk.MenuItem, "tabaccaioMenu");
 
     tabaccaioMenu.set_label("Tabaccaio");
@@ -66,14 +61,14 @@ fn attachEvents(builder: gtk.Builder, context: *Context) !void {
     // _ = dialog;
 }
 
-fn onTabaccaio(widget: *c.GtkWidget, context: *Context) void {
+fn onTabaccaio(widget: *c.GtkWidget, context: *sim.Context) void {
     _ = context.i18n.get(0);
     const menu = gtk.Widget.as(widget);
     const top = menu.get_toplevel().to_window();
 
     var dialog = gtk.Dialog.new(top, .{ .width = 200, .height = 200 }, "title", "ok", "cancel");
 
-    var tabaccaioWidget: TabaccaioWidget = TabaccaioWidget.init(allocator, context);
+    var tabaccaioWidget: sim.widget.TabaccaioWidget = sim.widget.TabaccaioWidget.init(allocator, context);
     defer tabaccaioWidget.deinit();
     const content = tabaccaioWidget.create() catch unreachable;
     var content_area = dialog.get_content_area();

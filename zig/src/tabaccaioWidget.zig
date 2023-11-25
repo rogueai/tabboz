@@ -1,24 +1,10 @@
 const std = @import("std");
-const GTK = @import("gtk");
-const c = GTK.c;
-const gtk = GTK.gtk;
-const gui = @import("gui/gui.zig");
-const Context = @import("context.zig").Context;
-
-const STSCOOTER = struct {
-    speed: i32, // velocita' massima
-    cc: i32, // cilindrata
-    xxx: i32, // [future espansioni]
-    fama: i32, // figosita' scooter
-    mass: i32, // massa sooter
-    maneuver: i32, // manovrabilita'
-    prezzo: i32, // costo dello scooter (modifiche incluse)
-    stato: i32, // quanto e' intero (in percuntuale); -1 nessuno scooter
-    nome: [:0]const u8, // nome dello scooter
-};
+const zarrosim = @import("zarrosim.zig");
+const c = zarrosim.c;
+const gtk = zarrosim.gtk;
 
 // /* Sigarette --------------------------------------------------------------------------------------- */
-pub const ScooterMem: [24]STSCOOTER = .{
+const ScooterMem: [24]zarrosim.STSCOOTER = .{
     .{ .speed = 5, .cc = 5, .xxx = 0, .fama = 2, .mass = 0, .maneuver = 0, .prezzo = 6, .stato = 0, .nome = "Barclay" },
     .{ .speed = 8, .cc = 7, .xxx = 0, .fama = 1, .mass = 0, .maneuver = 0, .prezzo = 6, .stato = 0, .nome = "Camel" },
     .{ .speed = 7, .cc = 6, .xxx = 0, .fama = 2, .mass = 0, .maneuver = 0, .prezzo = 6, .stato = 0, .nome = "Davidoff Superior Lights" },
@@ -47,34 +33,17 @@ pub const ScooterMem: [24]STSCOOTER = .{
     //          \condensato
 };
 
-// todo: da spostare
-pub fn EventWrapper(comptime I: type, comptime D: type) type {
-    return struct {
-        instance: *I,
-        data: D,
-        const Self = @This();
-        fn new(allocator: std.mem.Allocator, instance: *I, data: D) !*Self {
-            const object = try allocator.create(Self);
-            object.* = .{
-                .instance = instance,
-                .data = data,
-            };
-            return object;
-        }
-    };
-}
-
 pub const TabaccaioWidget = struct {
     const Self = @This();
 
     const Map = std.StringHashMap(gtk.Widget);
-    const OnSelectData = EventWrapper(Self, usize);
+    const OnSelectData = zarrosim.EventWrapper(Self, usize);
 
     arena: std.heap.ArenaAllocator,
     widgets: Map,
-    context: *Context,
+    context: *zarrosim.Context,
 
-    pub fn init(allocator: std.mem.Allocator, context: *Context) Self {
+    pub fn init(allocator: std.mem.Allocator, context: *zarrosim.Context) Self {
         var arena = std.heap.ArenaAllocator.init(allocator);
         return Self{
             .arena = arena,
@@ -89,7 +58,7 @@ pub const TabaccaioWidget = struct {
 
     pub fn create(self: *Self) !*gtk.Widget {
         const builder = gtk.Builder.new();
-        builder.add_from_string(gui.window_88) catch |e| {
+        builder.add_from_string(zarrosim.ui.window_88) catch |e| {
             std.debug.print("{?}\n", .{e});
         };
         // Builder.get_widget() returns an optional, so unwrap if there is a value

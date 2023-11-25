@@ -16,7 +16,7 @@ const Context = struct {
 
 pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-    var allocator = gpa.allocator();
+    const allocator = gpa.allocator();
 
     var context = .{
         .allocator = allocator,
@@ -99,7 +99,7 @@ pub const VendiScooterWidget = struct {
 
     fn openDialog(widget: *c.GtkButton, instance: *Self) void {
         const button = gtk.Widget.as(widget);
-        var top = button.get_toplevel().to_window();
+        const top = button.get_toplevel().to_window();
 
         var dialog = gtk.Dialog.new(
             top,
@@ -109,11 +109,11 @@ pub const VendiScooterWidget = struct {
             "cancel",
         );
 
-        var rissa = RissaWidget().init(instance.context.allocator) catch unreachable;
+        const rissa = RissaWidget().init(instance.context.allocator) catch unreachable;
         var content_area = dialog.get_content_area();
         content_area.add(rissa.ptr);
 
-        var result = dialog.run();
+        const result = dialog.run();
         switch (result) {
             c.GTK_RESPONSE_CANCEL => {
                 instance.context.text = "false";

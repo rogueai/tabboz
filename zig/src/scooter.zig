@@ -53,7 +53,7 @@ fn calcolaVelocita(hDlg: HWDL) void {
 
     // 28 Novembre 1998 0.81pr Bug ! Se lo scooter era ingrippato, cambiando il filtro
     // dell' aria o la marmitta la velocita' diventava un numero negativo...
-    var buf: []const u8 = undefined;
+    const buf: []const u8 = undefined;
     _ = buf;
 
     var scooterData = &sim.gameState.ScooterData;
@@ -114,7 +114,7 @@ fn Scooter(hDlg: HWDL, message: WORD, wParam: WORD, lParam: LONG) bool {
                     messageBox(hDlg, tmp, "Concessionario");
                     return true;
                 }
-                lpproc = MakeProcInstance(Concessionario, hInst);
+                const lpproc = MakeProcInstance(Concessionario, hInst);
                 DialogBox(hInst, MAKEINTRESOURCE(ACQUISTASCOOTER), hDlg, lpproc);
                 FreeProcInstance(lpproc);
                 Evento(hDlg);

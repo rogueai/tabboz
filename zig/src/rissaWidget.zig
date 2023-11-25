@@ -30,7 +30,7 @@ pub fn RissaWidget() type {
             const button = try builder.get_widget("button");
             button.connectWidget("clicked", printHello);
 
-            var widgets = WidgetMap.init(allocator);
+            const widgets = WidgetMap.init(allocator);
 
             return Self{
                 .ptr = window,

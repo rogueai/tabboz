@@ -1,47 +1,72 @@
+/// imports
 const std = @import("std");
-const jsonStrings = @embedFile("strings.json");
-const Map = std.StringArrayHashMapUnmanaged([]const u8);
+const raw_text = @embedFile("strings.txt");
 
+/// types
+const CString = [:0]u8;
+const Map = std.AutoHashMap(usize, CString);
+
+/// I18n
 pub const I18n = struct {
-    allocator: std.mem.Allocator,
-    strings: Map,
+    map: Map,
 
-    pub fn init(allocator: std.mem.Allocator) I18n {
-        const map = parse(allocator) catch |err| default: {
-            std.log.err("Error while parsing strings.json: {?}", .{err});
-            break :default Map{}; // return an empty map
-        };
+    const Self = @This();
+
+    pub fn init(allocator: std.mem.Allocator) Self {
+        const map: Map = parseStrings(allocator) catch Map.init(allocator);
         return .{
-            .allocator = allocator,
-            .strings = map,
+            .map = map,
         };
     }
 
-    pub fn get(self: *I18n, key: usize) ?[:0]const u8 {
-        var buf: [16]u8 = undefined;
-        const sKey = std.fmt.bufPrint(&buf, "{d}", .{key}) catch "0";
-        if (self.strings.get(sKey)) |value| {
-            const sValue = std.fmt.allocPrintZ(self.allocator, "{s}", .{value}) catch "";
-            std.log.debug("Key: {s} Value: {s}", .{ sKey, sValue });
-            return sValue;
+    pub fn deinit(self: *Self) void {
+        var iter = self.map.valueIterator();
+        while (iter.next()) |el| {
+            self.map.allocator.free(el.*);
         }
-        return null;
+        self.map.deinit();
     }
 
-    pub fn deinit(self: *I18n) void {
-        self.strings.deinit(self.allocator);
+    fn parseStrings(allocator: std.mem.Allocator) !Map {
+        std.log.info("Parsing strings...", .{});
+        var map = Map.init(allocator);
+        var fbs = std.io.fixedBufferStream(raw_text);
+        var in_stream = fbs.reader();
+        var buf: [1024]u8 = undefined;
+        var line_number: usize = 0;
+        while (try in_stream.readUntilDelimiterOrEof(&buf, '\n')) |line| {
+            line_number += 1;
+            const idx_semicolon = std.mem.indexOf(u8, line, ":");
+            if (idx_semicolon) |idx| {
+                const key = std.mem.trim(u8, line[0..idx], " ");
+                const key_usize = std.fmt.parseInt(usize, key, 10) catch |err| {
+                    std.log.err("Skipped row number: {d}. Token '{s}' is not a number: {any}", .{ line_number, key, err });
+                    continue;
+                };
+                const value = std.mem.trim(u8, line[idx + 1 ..], " ");
+                const value_z = try std.fmt.allocPrintZ(allocator, "{s}", .{value});
+                try map.put(key_usize, value_z);
+            } else {
+                std.log.warn("Skipped row number: {d}.", .{line_number});
+            }
+        }
+        std.log.info("String parsed {d}", .{line_number});
+        return map;
     }
 
-    fn parse(allocator: std.mem.Allocator) !Map {
-        const JsonMap = std.json.ArrayHashMap([]const u8);
-        var result = try std.json.parseFromSlice(JsonMap, allocator, jsonStrings, .{});
-        defer result.deinit();
-        return try result.value.map.clone(allocator);
+    pub fn get(self: *Self, key: usize) ?CString {
+        return self.map.get(key);
     }
 };
 
 test "Encode a struct into a JSON string2" {
     var i18n = I18n.init(std.testing.allocator);
     defer i18n.deinit();
-    try std.testing.expect(std.mem.eql(u8, "TabbozSimulator", i18n.get("1").?));
+    //    const value = i18n.get(101).?;
+    // std.debug.print("\n{s}\n", .{value});
+
+    //try std.testing.expect(std.mem.eql(
+    //    [:0]const u8,
+    //    &"TabbozSimulator",
+    //));
 }

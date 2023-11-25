@@ -1,5 +1,51 @@
 const std = @import("std");
 
+const GTK = @import("gtk");
+pub const c = GTK.c;
+pub const gtk = GTK.gtk;
+
+// commons
+pub usingnamespace @import("gui/gui.zig");
+
+// widgets
+pub const widget = struct {
+    pub usingnamespace @import("tabaccaioWidget.zig");
+};
+
+pub const I18n = @import("util/string.zig").I18n;
+pub const Context = struct {
+    i18n: I18n,
+};
+
+// todo: da spostare
+pub fn EventWrapper(comptime I: type, comptime D: type) type {
+    return struct {
+        instance: *I,
+        data: D,
+        const Self = @This();
+        pub fn new(allocator: std.mem.Allocator, instance: *I, data: D) !*Self {
+            const object = try allocator.create(Self);
+            object.* = .{
+                .instance = instance,
+                .data = data,
+            };
+            return object;
+        }
+    };
+}
+
+pub const STSCOOTER = struct {
+    speed: i32, // velocita' massima
+    cc: i32, // cilindrata
+    xxx: i32, // [future espansioni]
+    fama: i32, // figosita' scooter
+    mass: i32, // massa sooter
+    maneuver: i32, // manovrabilita'
+    prezzo: i32, // costo dello scooter (modifiche incluse)
+    stato: i32, // quanto e' intero (in percuntuale); -1 nessuno scooter
+    nome: [:0]const u8, // nome dello scooter
+};
+
 pub const NEWSTSCOOTER = struct {
     speed: i32, // 01  Velocita'
     marmitta: i32, // 02  Marmitta 		( +0, +7, +12, +15)
@@ -54,7 +100,7 @@ const euro = false;
 
 pub fn mostraSoldi(allocator: std.mem.Allocator, i: i32) ![]const u8 {
     if (euro) {
-        var f: f32 = @floatFromInt(i);
+        const f: f32 = @floatFromInt(i);
         return try std.fmt.allocPrint(allocator, "{d:0.2} ue", .{f / 2.0});
     } else if (i == 0) {
         return try std.fmt.allocPrint(allocator, "0 L.", .{});
