@@ -10,19 +10,19 @@ const I18n = @import("context.zig").I18n;
 const TabaccaioWidget = @import("tabaccaioWidget.zig").TabaccaioWidget;
 
 var mainApp: *c.GtkApplication = undefined;
+var allocator: std.mem.Allocator = undefined;
 
 pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-    var allocator = gpa.allocator();
+    allocator = gpa.allocator();
 
     mainApp = c.gtk_application_new("org.gtk.example", c.G_APPLICATION_FLAGS_NONE) orelse @panic("null app :(");
     defer c.g_object_unref(mainApp);
 
     var i18n = I18n.init(allocator);
-    // defer i18n.deinit();
+    defer i18n.deinit();
 
     var context = Context{
-        .allocator = allocator,
         .i18n = i18n,
     };
 
@@ -69,17 +69,17 @@ fn attachEvents(builder: gtk.Builder, context: *Context) !void {
 fn onTabaccaio(widget: *c.GtkWidget, context: *Context) void {
     _ = context.i18n.get(0);
     const menu = gtk.Widget.as(widget);
-    var top = menu.get_toplevel().to_window();
+    const top = menu.get_toplevel().to_window();
 
     var dialog = gtk.Dialog.new(top, .{ .width = 200, .height = 200 }, "title", "ok", "cancel");
 
-    var tabaccaioWidget = TabaccaioWidget.init(context);
-    defer TabaccaioWidget.deinit();
-    var content = tabaccaioWidget.create() catch unreachable;
+    var tabaccaioWidget: TabaccaioWidget = TabaccaioWidget.init(allocator, context);
+    defer tabaccaioWidget.deinit();
+    const content = tabaccaioWidget.create() catch unreachable;
     var content_area = dialog.get_content_area();
     content_area.add(content.*);
 
-    var result = dialog.run();
+    const result = dialog.run();
     switch (result) {
         c.GTK_RESPONSE_CANCEL => {
             // instance.context.text = "false";

@@ -287,8 +287,8 @@ pub const SpinButton = struct {
     }
 
     pub fn get_increments(self: Self) Increments {
-        var step: f64 = 0;
-        var page: f64 = 0;
+        const step: f64 = 0;
+        const page: f64 = 0;
         c.gtk_spin_button_get_increments(self.ptr, step, page);
         return Increments{ .step = step, .page = page };
     }
@@ -298,8 +298,8 @@ pub const SpinButton = struct {
     }
 
     pub fn get_range(self: Self) Bounds {
-        var min: f64 = 0;
-        var max: f64 = 0;
+        const min: f64 = 0;
+        const max: f64 = 0;
         c.gtk_spin_button_get_range(self.ptr, min, max);
         return Bounds{ .min = min, .max = max };
     }

@@ -100,8 +100,8 @@ pub const Frame = struct {
     /// Retrieves the X and Y alignment of the frame’s label. See
     /// Frame.set_label_align().
     pub fn get_label_align(self: Self) Align {
-        var x: f32 = undefined;
-        var y: f32 = undefined;
+        const x: f32 = undefined;
+        const y: f32 = undefined;
         c.gtk_frame_get_label_align(self.ptr, x, y);
         return Align{ .x = x, .y = y };
     }

@@ -123,7 +123,7 @@ pub const Image = struct {
     /// gtk_image_get_storage_type()). The returned string is owned by the
     /// GtkImage and should not be freed.
     pub fn get_icon_name(self: Self) IconDesc {
-        var name: [:0]const u8 = undefined;
+        const name: [:0]const u8 = undefined;
         var size: c_uint = undefined;
         c.gtk_image_get_icon_name(self.ptr & name.ptr, &size);
         return IconDesc{
@@ -137,7 +137,7 @@ pub const Image = struct {
     /// gtk_image_get_storage_type()). The caller of this function does not own
     /// a reference to the returned GIcon.
     pub fn get_gicon(self: Self) GIconDesc {
-        var gicon: *c.gicon = undefined;
+        const gicon: *c.gicon = undefined;
         var size: IconSize = undefined;
         c.gtk_image_get_gicon(self.ptr, gicon, &size);
         return GIconDesc{

@@ -160,7 +160,7 @@ pub const Popover = struct {
     }
 
     pub fn get_pointing_to(self: Self) ?*c.GdkRectangle {
-        var rect: *c.GdkRectangle = undefined;
+        const rect: *c.GdkRectangle = undefined;
         return if (c.gtk_popover_get_pointing_to(self.ptr, rect)) rect else null;
     }
 

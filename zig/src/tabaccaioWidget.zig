@@ -5,26 +5,86 @@ const gtk = GTK.gtk;
 const gui = @import("gui/gui.zig");
 const Context = @import("context.zig").Context;
 
-const SelectEvent = struct {
-    self: *TabaccaioWidget,
-    n: usize,
+const STSCOOTER = struct {
+    speed: i32, // velocita' massima
+    cc: i32, // cilindrata
+    xxx: i32, // [future espansioni]
+    fama: i32, // figosita' scooter
+    mass: i32, // massa sooter
+    maneuver: i32, // manovrabilita'
+    prezzo: i32, // costo dello scooter (modifiche incluse)
+    stato: i32, // quanto e' intero (in percuntuale); -1 nessuno scooter
+    nome: [:0]const u8, // nome dello scooter
 };
+
+// /* Sigarette --------------------------------------------------------------------------------------- */
+pub const ScooterMem: [24]STSCOOTER = .{
+    .{ .speed = 5, .cc = 5, .xxx = 0, .fama = 2, .mass = 0, .maneuver = 0, .prezzo = 6, .stato = 0, .nome = "Barclay" },
+    .{ .speed = 8, .cc = 7, .xxx = 0, .fama = 1, .mass = 0, .maneuver = 0, .prezzo = 6, .stato = 0, .nome = "Camel" },
+    .{ .speed = 7, .cc = 6, .xxx = 0, .fama = 2, .mass = 0, .maneuver = 0, .prezzo = 6, .stato = 0, .nome = "Davidoff Superior Lights" },
+    .{ .speed = 7, .cc = 6, .xxx = 0, .fama = 2, .mass = 0, .maneuver = 0, .prezzo = 6, .stato = 0, .nome = "Davidoff Mildnes" },
+    .{ .speed = 13, .cc = 9, .xxx = 0, .fama = 2, .mass = 0, .maneuver = 0, .prezzo = 6, .stato = 0, .nome = "Davidoff Classic" },
+    .{ .speed = 9, .cc = 7, .xxx = 0, .fama = 1, .mass = 0, .maneuver = 0, .prezzo = 5, .stato = 0, .nome = "Diana Blu" },
+    .{ .speed = 12, .cc = 9, .xxx = 0, .fama = 1, .mass = 0, .maneuver = 0, .prezzo = 5, .stato = 0, .nome = "Diana Rosse" },
+    .{ .speed = 8, .cc = 7, .xxx = 0, .fama = 0, .mass = 0, .maneuver = 0, .prezzo = 6, .stato = 0, .nome = "Dunhill Lights" },
+    .{ .speed = 7, .cc = 5, .xxx = 0, .fama = 0, .mass = 0, .maneuver = 0, .prezzo = 6, .stato = 0, .nome = "Merit" },
+    .{ .speed = 14, .cc = 10, .xxx = 0, .fama = 0, .mass = 0, .maneuver = 0, .prezzo = 6, .stato = 0, .nome = "Gauloises Blu" },
+    .{ .speed = 7, .cc = 6, .xxx = 0, .fama = 0, .mass = 0, .maneuver = 0, .prezzo = 6, .stato = 0, .nome = "Gauloises Rosse" },
+    .{ .speed = 13, .cc = 10, .xxx = 0, .fama = 1, .mass = 0, .maneuver = 0, .prezzo = 6, .stato = 0, .nome = "Unlucky Strike" },
+    .{ .speed = 9, .cc = 7, .xxx = 0, .fama = 1, .mass = 0, .maneuver = 0, .prezzo = 6, .stato = 0, .nome = "Unlucky Strike Lights" },
+    .{ .speed = 8, .cc = 6, .xxx = 0, .fama = 2, .mass = 0, .maneuver = 0, .prezzo = 6, .stato = 0, .nome = "Malborro Medium" }, // dovrebbero essere come le lights 4 Marzo 1999
+    .{ .speed = 12, .cc = 9, .xxx = 0, .fama = 2, .mass = 0, .maneuver = 0, .prezzo = 6, .stato = 0, .nome = "Malborro Rosse" },
+    .{ .speed = 8, .cc = 6, .xxx = 0, .fama = 2, .mass = 0, .maneuver = 0, .prezzo = 6, .stato = 0, .nome = "Malborro Lights" },
+    .{ .speed = 11, .cc = 10, .xxx = 0, .fama = 0, .mass = 0, .maneuver = 0, .prezzo = 5, .stato = 0, .nome = "NS Rosse" },
+    .{ .speed = 9, .cc = 8, .xxx = 0, .fama = 0, .mass = 0, .maneuver = 0, .prezzo = 5, .stato = 0, .nome = "NS Mild" },
+    .{ .speed = 9, .cc = 7, .xxx = 0, .fama = 1, .mass = 0, .maneuver = 0, .prezzo = 5, .stato = 0, .nome = "Poll Mon Blu" },
+    .{ .speed = 12, .cc = 9, .xxx = 0, .fama = 1, .mass = 0, .maneuver = 0, .prezzo = 5, .stato = 0, .nome = "Poll Mon Rosse" },
+    .{ .speed = 12, .cc = 10, .xxx = 0, .fama = 2, .mass = 0, .maneuver = 0, .prezzo = 6, .stato = 0, .nome = "Philip Morris" },
+    .{ .speed = 4, .cc = 4, .xxx = 0, .fama = 2, .mass = 0, .maneuver = 0, .prezzo = 6, .stato = 0, .nome = "Philip Morris Super Light" },
+    .{ .speed = 10, .cc = 9, .xxx = 0, .fama = 1, .mass = 0, .maneuver = 0, .prezzo = 5, .stato = 0, .nome = "Armadis" },
+    .{ .speed = 11, .cc = 9, .xxx = 0, .fama = 0, .mass = 0, .maneuver = 0, .prezzo = 5, .stato = 0, .nome = "Winston" },
+    // 	        |       \nicotina * 10 ( 7 = nicotina 0.7, 10 = nicotina 1 )
+    //          \condensato
+};
+
+// todo: da spostare
+pub fn EventWrapper(comptime I: type, comptime D: type) type {
+    return struct {
+        instance: *I,
+        data: D,
+        const Self = @This();
+        fn new(allocator: std.mem.Allocator, instance: *I, data: D) !*Self {
+            const object = try allocator.create(Self);
+            object.* = .{
+                .instance = instance,
+                .data = data,
+            };
+            return object;
+        }
+    };
+}
 
 pub const TabaccaioWidget = struct {
     const Self = @This();
+
     const Map = std.StringHashMap(gtk.Widget);
+    const OnSelectData = EventWrapper(Self, usize);
 
-    var widgets: Map = undefined;
-    var context: *Context = undefined;
+    arena: std.heap.ArenaAllocator,
+    widgets: Map,
+    context: *Context,
 
-    pub fn init(_context: *Context) Self {
-        widgets = Map.init(_context.allocator);
-        context = _context;
-        return .{};
+    pub fn init(allocator: std.mem.Allocator, context: *Context) Self {
+        var arena = std.heap.ArenaAllocator.init(allocator);
+        return Self{
+            .arena = arena,
+            .widgets = Map.init(arena.allocator()),
+            .context = context,
+        };
     }
 
-    pub fn deinit() void {
-        widgets.deinit();
+    pub fn deinit(self: *Self) void {
+        defer self.arena.deinit();
     }
 
     pub fn create(self: *Self) !*gtk.Widget {
@@ -35,7 +95,7 @@ pub const TabaccaioWidget = struct {
         // Builder.get_widget() returns an optional, so unwrap if there is a value
         var w = try builder.get_widget("window");
 
-        try widgets.put("message", try builder.get_widget("message"));
+        try self.widgets.put("message", try builder.get_widget("message"));
 
         var grid: gtk.Grid = try builder.get(gtk.Grid, "grid");
 
@@ -46,16 +106,12 @@ pub const TabaccaioWidget = struct {
             var image = gtk.Image.new_from_file(fileName);
             button.set_image(image.as_widget());
 
-            var event = try context.allocator.create(SelectEvent);
-            event.* = .{
-                .self = self,
-                .n = i,
-            };
-            button.as_widget().connect("clicked", @as(c.GCallback, @ptrCast(&onSelect)), event);
+            const event: *OnSelectData = OnSelectData.new(self.arena.allocator(), self, i) catch unreachable;
+            button.as_widget().connectWidget(OnSelectData, "clicked", onSelect, event);
 
             const left = i % 8;
             const top = @divTrunc(i, 8);
-            grid.attach(button.as_widget(), @as(c_int, @intCast(left)), @as(c_int, @intCast(top)), 1, 1);
+            grid.attach(button.as_widget(), left, top, 1, 1);
         }
 
         w.show_all();
@@ -70,13 +126,10 @@ pub const TabaccaioWidget = struct {
         return &w;
     }
 
-    fn onSelect(_: *c.GtkButton, event: *SelectEvent) void {
-        const label = widgets.get("message");
+    fn onSelect(_: *c.GtkWidget, event: *OnSelectData) void {
+        const label = event.instance.widgets.get("message");
         if (label) |l| {
-            if (context.i18n.get(1400 + event.n)) |text| {
-                std.log.debug("{s}", .{text});
-                l.to_label().?.set_text(text);
-            }
+            l.to_label().?.set_text(ScooterMem[event.data].nome);
         }
     }
 };

@@ -63,7 +63,7 @@ pub const Dialog = struct {
     const Self = @This();
 
     pub fn new(parent: ?Window, size: ?DefaultSize, title: ?[:0]const u8, bOk: ?[:0]const u8, bCancel: ?[:0]const u8) Self {
-        var dialog = c.gtk_dialog_new();
+        const dialog = c.gtk_dialog_new();
         c.gtk_window_set_destroy_with_parent(@ptrCast(dialog), c.gtk_false());
         if (size) |s| {
             c.gtk_window_set_default_size(@ptrCast(dialog), s.width, s.height);

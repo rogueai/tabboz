@@ -122,7 +122,7 @@ pub const FileChooser = struct {
     }
 
     pub fn get_filenames(self: Self, allocator: mem.Allocator) ?std.ArrayList(Widget) {
-        var kids = c.gtk_file_chooser_get_filenames(self.ptr);
+        const kids = c.gtk_file_chooser_get_filenames(self.ptr);
         defer c.g_list_free(kids);
         return if (com.gslistToArrayList(kids, allocator)) |list| list else null;
     }
@@ -156,7 +156,7 @@ pub const FileChooser = struct {
     }
 
     pub fn get_uris(self: Self, allocator: mem.Allocator) ?std.ArrayList(Widget) {
-        var kids = c.gtk_file_chooser_get_uris(self.ptr);
+        const kids = c.gtk_file_chooser_get_uris(self.ptr);
         defer c.g_list_free(kids);
         return if (com.gslistToArrayList(kids, allocator)) |list| list else null;
     }
@@ -246,7 +246,7 @@ pub const FileChooser = struct {
     }
 
     pub fn list_filters(self: Self, allocator: mem.Allocator) ?std.ArrayList(Widget) {
-        var kids = c.gtk_file_chooser_list_filters(self.ptr);
+        const kids = c.gtk_file_chooser_list_filters(self.ptr);
         defer c.g_list_free(kids);
         return if (com.gslistToArrayList(kids, allocator)) |list| list else null;
     }

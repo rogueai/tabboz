@@ -22,8 +22,8 @@ pub fn builder_get_widget(builder: *c.GtkBuilder, name: [*]const u8) ?*c.GtkWidg
     if (obj == null) {
         return null;
     } else {
-        var gobject = @as([*c]c.GTypeInstance, @ptrCast(obj));
-        var gwidget = @as(*c.GtkWidget, @ptrCast(c.g_type_check_instance_cast(gobject, c.gtk_widget_get_type())));
+        const gobject = @as([*c]c.GTypeInstance, @ptrCast(obj));
+        const gwidget = @as(*c.GtkWidget, @ptrCast(c.g_type_check_instance_cast(gobject, c.gtk_widget_get_type())));
         return gwidget;
     }
 }
@@ -34,8 +34,8 @@ pub fn builder_get_adjustment(builder: *c.GtkBuilder, name: [*]const u8) ?*c.Gtk
     if (obj == null) {
         return null;
     } else {
-        var gobject = @as([*c]c.GTypeInstance, @ptrCast(obj));
-        var adjustment = @as(*c.GtkAdjustment, @ptrCast(gobject));
+        const gobject = @as([*c]c.GTypeInstance, @ptrCast(obj));
+        const adjustment = @as(*c.GtkAdjustment, @ptrCast(gobject));
         return adjustment;
     }
 }

@@ -22,8 +22,8 @@ pub const Grid = struct {
         };
     }
 
-    pub fn attach(self: Self, child: Widget, left: c_int, top: c_int, width: c_int, height: c_int) void {
-        c.gtk_grid_attach(self.ptr, child.ptr, left, top, width, height);
+    pub fn attach(self: Self, child: Widget, left: usize, top: usize, width: usize, height: c_int) void {
+        c.gtk_grid_attach(self.ptr, child.ptr, @intCast(left), @intCast(top), @intCast(width), @intCast(height));
     }
 
     pub fn attach_next_to(self: Self, child: Widget, sibling: Widget, side: PositionType, width: c_int, height: c_int) void {

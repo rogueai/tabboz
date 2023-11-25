@@ -406,12 +406,7 @@ pub const Widget = struct {
         _ = common.signal_connect(self.ptr, sig.ptr, callback, if (data) |d| d else null);
     }
 
-    pub fn connectWidget(self: Self, sig: []const u8, comptime callback: fn (widget: *Widget) void) void {
-        const fnPtr = @as(c.GCallback, @ptrCast(&callback));
-        _ = common.signal_connect(self.ptr, sig.ptr, fnPtr, null);
-    }
-
-    pub fn connectWidgetWithData(self: Self, comptime T: type, sig: []const u8, comptime callback: fn (widget: *Widget, data: *T) void, data: ?*T) void {
+    pub fn connectWidget(self: Self, comptime T: type, sig: []const u8, comptime callback: fn (widget: *c.GtkWidget, data: *T) void, data: ?*T) void {
         const fnPtr = @as(c.GCallback, @ptrCast(&callback));
         _ = common.signal_connect(self.ptr, sig.ptr, fnPtr, if (data) |d| @ptrCast(d) else null);
     }

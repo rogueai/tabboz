@@ -7,7 +7,7 @@ pub const I18n = struct {
     strings: Map,
 
     pub fn init(allocator: std.mem.Allocator) I18n {
-        var map = parse(allocator) catch |err| default: {
+        const map = parse(allocator) catch |err| default: {
             std.log.err("Error while parsing strings.json: {?}", .{err});
             break :default Map{}; // return an empty map
         };

@@ -123,10 +123,10 @@ pub const Box = struct {
 
     /// Obtains information about how child is packed into box.
     pub fn query_child_packing(self: Self, child: Widget) Packing {
-        var expand: c_int = undefined;
-        var fill: c_int = undefined;
-        var padding: c_uint = undefined;
-        var pack_type: c.GtkPackType = undefined;
+        const expand: c_int = undefined;
+        const fill: c_int = undefined;
+        const padding: c_uint = undefined;
+        const pack_type: c.GtkPackType = undefined;
         c.gtk_box_query_packing(self.ptr, child.ptr, expand, fill, padding, pack_type);
         return Packing{
             .expand = (expand == 1),

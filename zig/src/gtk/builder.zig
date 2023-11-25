@@ -137,7 +137,7 @@ pub const Builder = struct {
         if (obj == null) {
             return null;
         } else {
-            var gwidget: *c.GtkWidget = @ptrCast(c.g_type_check_instance_cast(@ptrCast(obj), c.gtk_widget_get_type()));
+            const gwidget: *c.GtkWidget = @ptrCast(c.g_type_check_instance_cast(@ptrCast(obj), c.gtk_widget_get_type()));
             return gwidget;
         }
     }

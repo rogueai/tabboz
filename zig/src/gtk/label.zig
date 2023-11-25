@@ -180,8 +180,8 @@ pub const Label = struct {
     /// Widget.get_has_window()). Remember when using the PangoLayout functions you need
     /// to convert to and from pixels using PANGO_PIXELS() or PANGO_SCALE.
     pub fn get_layout_offsets(self: Self) LayoutOffsets {
-        var x: c_int = undefined;
-        var y: c_int = undefined;
+        const x: c_int = undefined;
+        const y: c_int = undefined;
         c.gtk_label_get_layout_offsets(self.ptr, x, y);
         return LayoutOffsets{ .x = x, .y = y };
     }
@@ -337,8 +337,8 @@ pub const Label = struct {
     /// Gets the selected range of characters in the label, returning `SelectionBounds`
     /// if any text is selected or else `null`.
     pub fn get_selection_bounds(self: Self) ?SelectionBounds {
-        var start: c_int = undefined;
-        var end: c_int = undefined;
+        const start: c_int = undefined;
+        const end: c_int = undefined;
         return if (c.gtk_label_get_selection_bounds(self.ptr, start, end) == 1) SelectionBounds{
             .start = start,
             .end = end,
@@ -538,8 +538,8 @@ pub const AccelLabel = struct {
 
     /// Gets the keyval and modifier mask set with gtk_accel_label_set_accel().
     pub fn get_accel(self: Self) Accel {
-        var key: c_uint = undefined;
-        var mask: c.GdkModifierType = undefined;
+        const key: c_uint = undefined;
+        const mask: c.GdkModifierType = undefined;
         c.gtk_accel_label_get_accel(self.ptr, key, mask);
         return Accel{
             .key = key,
