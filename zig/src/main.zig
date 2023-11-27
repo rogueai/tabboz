@@ -1,8 +1,10 @@
 const std = @import("std");
 
-const sim = @import("zarrosim.zig");
+const sim = @import("sim/zarrosim.zig");
 const c = sim.c;
 const gtk = sim.gtk;
+
+const TabaccaioWidget = @import("tabaccaioWidget.zig").TabaccaioWidget;
 
 var mainApp: *c.GtkApplication = undefined;
 var allocator: std.mem.Allocator = undefined;
@@ -68,7 +70,7 @@ fn onTabaccaio(widget: *c.GtkWidget, context: *sim.Context) void {
 
     var dialog = gtk.Dialog.new(top, .{ .width = 200, .height = 200 }, "title", "ok", "cancel");
 
-    var tabaccaioWidget: sim.widget.TabaccaioWidget = sim.widget.TabaccaioWidget.init(allocator, context);
+    var tabaccaioWidget: TabaccaioWidget = TabaccaioWidget.init(allocator, context);
     defer tabaccaioWidget.deinit();
     const content = tabaccaioWidget.create() catch unreachable;
     var content_area = dialog.get_content_area();

@@ -7,6 +7,17 @@ const HWND = usize;
 const WORD = u32;
 const LONG = u32;
 
+pub const ScooterMem: [8]std.NEWSTSCOOTER = .{
+    .{ .speed = 0, .marmitta = 0, .carburatore = 0, .cc = 0, .filtro = 0, .prezzo = 0, .attivita = 0, .stato = -1, .nome = "Nessuno scooter", .fama = 0 }, //
+    .{ .speed = 65, .marmitta = 0, .carburatore = 0, .cc = 0, .filtro = 0, .prezzo = 2498, .attivita = 1, .stato = 100, .nome = "Magutty Firecow", .fama = 5 },
+    .{ .speed = 75, .marmitta = 0, .carburatore = 1, .cc = 1, .filtro = 1, .prezzo = 4348, .attivita = 1, .stato = 100, .nome = "Honda F98", .fama = 10 },
+    .{ .speed = 105, .marmitta = 1, .carburatore = 1, .cc = 2, .filtro = 1, .prezzo = 6498, .attivita = 1, .stato = 100, .nome = "Mizzubisci R200 Millenium", .fama = 15 },
+    .{ .speed = 75, .marmitta = 0, .carburatore = 0, .cc = 1, .filtro = 1, .prezzo = 4298, .attivita = 1, .stato = 100, .nome = "Magutty Firecow+", .fama = 7 },
+    .{ .speed = 100, .marmitta = 0, .carburatore = 1, .cc = 2, .filtro = 1, .prezzo = 5998, .attivita = 1, .stato = 100, .nome = "Magutty Firecow II", .fama = 10 },
+    .{ .speed = 100, .marmitta = 0, .carburatore = 1, .cc = 2, .filtro = 1, .prezzo = 6348, .attivita = 1, .stato = 100, .nome = "Honda F98s", .fama = 13 },
+    .{ .speed = 250, .marmitta = 0, .carburatore = 5, .cc = 5, .filtro = 0, .prezzo = 14500, .attivita = 1, .stato = 100, .nome = "Lexux LS400 ", .fama = 60 },
+};
+
 const n_carburator = .{ "12/10", "16/16", "19/19", "20/20", "24/24", "custom" };
 const n_cc = .{ "50cc", "70cc", "90cc", "120cc", "150cc", "3969cc" };
 const n_marmitta = .{ "standard", "silenziosa", "rumorosa", "rumorosissima" };
